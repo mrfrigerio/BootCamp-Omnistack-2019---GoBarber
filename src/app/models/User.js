@@ -9,7 +9,7 @@ class User extends Model {
     super.init({
       name: Sequelize.STRING,
       email: Sequelize.STRING,
-      password: Sequelize.VIRTUAL,
+      password: Sequelize.VIRTUAL,   // --> Will not be persisted
       password_hash: Sequelize.STRING,
       provider: Sequelize.BOOLEAN
     },
@@ -22,7 +22,7 @@ class User extends Model {
         user.password_hash = await bcrypt.hash(user.password, 8)
       }
     })
-    return this
+    return this //optional
   }
 
   checkPassword(password) {
@@ -30,5 +30,4 @@ class User extends Model {
   }
 
 }
-
 export default User
