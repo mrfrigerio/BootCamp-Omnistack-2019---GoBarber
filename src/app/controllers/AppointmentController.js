@@ -1,8 +1,12 @@
 import * as Yup from 'yup'
-import { startOfHour, isBefore, parseISO } from 'date-fns'
+import { startOfHour, isBefore, parseISO, differenceInHours, format } from 'date-fns'
+import pt_BR from 'date-fns/locale/pt-BR'
 import Appointment from '../models/Appointment'
 import User from '../models/User'
 import File from '../models/File'
+import Notification from '../schemas/Notification'
+import Queue from '../../lib/Queue'
+import CancellationMail from '../jobs/CancellationMail'
 
 class AppointmentController {
 
@@ -79,15 +83,73 @@ class AppointmentController {
       return res.status(400).json('Appointment date is not available')
     }
 
+    const { name: user_name, id: user_id } = await User.findByPk(req.userId)
+
+    /**
+     * Check is myself
+     */
+
+    if (provider_id === user_id) {
+      return res.status(400).json('You can not scheldule an appointment with yourself.')
+    }
+
     const appointment = await Appointment.create({
-      user_id: req.userId,
+      user_id,
       provider_id,
       date: hourStart
+    })
+
+    /**
+     * Notify provider
+     */
+
+    const formattedDate = format(hourStart, "'o dia' dd 'de' MMMM' de' yyyy 'às' HH:mm", { locale: pt_BR })
+    Notification.create({
+      content: `Novo agendamento de ${user_name} para ${formattedDate}`,
+      user: provider_id
     })
 
     return res.json({ appointment })
 
   }
+
+  async delete(req, res) {
+
+    /**
+     *  Somente é possível cancelar agendamentos do próprio usuário logado e com mais de 2h de antecedência
+     */
+
+    const appointment = await Appointment.findByPk(req.params.id, {
+      include: [
+        {
+          model: User,
+          as: 'provider',
+          attributes: ['name', 'email']
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['name']
+        }
+      ]
+    })
+    const { user_id, date } = appointment
+
+    if (user_id !== req.userId) {
+      return res.status(401).json({ error: "You don't have permission to cancel this appointment." })
+    }
+
+    if (differenceInHours(date, new Date()) < 2) {
+      return res.status(401).json({ error: "Sorry. We can't cancel an appointment closer than 2 hours from now" })
+    }
+
+    await Queue.add(CancellationMail.key, { appointment })
+
+    const updatedAppointment = await appointment.update({ canceled_at: new Date() })
+    return res.json(updatedAppointment)
+
+  }
+
 
 }
 

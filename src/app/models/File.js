@@ -1,5 +1,4 @@
 import Sequelize, { Model } from 'sequelize'
-import { resolve } from 'path'
 import 'dotenv/config'
 /** Quando definir os campos, não é necessário definir os campos de chave promária e os
  * created_at / updated_at, mas sim apenas os campos que são alimentados por inputs do usuário */

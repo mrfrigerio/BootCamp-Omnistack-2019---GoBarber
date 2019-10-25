@@ -8,6 +8,7 @@ import FileController from './app/controllers/FileController'
 import ProviderController from './app/controllers/ProviderController'
 import AppointmentController from './app/controllers/AppointmentController'
 import ScheduleController from './app/controllers/ScheduleController'
+import NotificationController from './app/controllers/NotificationController'
 
 import authMiddleware from './app/middlewares/auth'
 
@@ -19,15 +20,18 @@ const upload = multer(multerConfig)
 //Sessions
 routes.post('/sessions', SessionController.store)
 
-routes.use(authMiddleware)
 
 // Users
-routes.get('/users', UserController.index)
 routes.post('/users', UserController.store)
+
+routes.use(authMiddleware)
+
+routes.get('/users', UserController.index)
 routes.put('/users', UserController.update)
 
 // Providers
 routes.get('/providers', ProviderController.index)
+routes.get('/providers/:providerId/')
 
 // Files
 routes.post('/files', upload.single('file'), FileController.store)
@@ -35,8 +39,13 @@ routes.post('/files', upload.single('file'), FileController.store)
 // Appointments
 routes.get('/appointments', AppointmentController.index)
 routes.post('/appointments', AppointmentController.store)
+routes.delete('/appointments/:id', AppointmentController.delete)
 
 // Schedule
 routes.get('/schedule', ScheduleController.index)
+
+// Notificationsa
+routes.get('/notifications', NotificationController.index)
+routes.put('/notifications/:id', NotificationController.update)
 
 export default routes
