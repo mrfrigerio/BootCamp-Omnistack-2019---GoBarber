@@ -22,7 +22,7 @@ class Database {
 
   mongo() {
     this.mongoConnection = mongoose.connect(
-      'mongodb://localhost:27017/gobarber',   // base de dados 'gobarber', se não existir, é criada on thee fly pelo mongo.
+      process.env.MONGO_URL,   // base de dados 'gobarber', se não existir, é criada on thee fly pelo mongo.
       { useNewUrlParser: true, useFindAndModify: true, useUnifiedTopology: true }
     )
   }

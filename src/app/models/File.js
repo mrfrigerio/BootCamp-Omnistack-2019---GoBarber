@@ -9,8 +9,8 @@ class File extends Model {
       name: Sequelize.STRING,
       path: Sequelize.STRING,
       url: {
-        type: Sequelize.VIRTUAL,
-        get() { return `http://localhost:${process.env.SERVER_PORT}/files/${this.path}` }
+        type: Sequelize.VIRTUAL,  // Will not be persisted in the database
+        get() { return `${process.env.APP_URL}/files/${this.path}` }
       }
     },
       {

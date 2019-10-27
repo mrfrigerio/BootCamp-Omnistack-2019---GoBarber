@@ -23,7 +23,7 @@ class Queue {
   }
 
   // Adiciona jobs às filas com os dados 'data' e salva no Redis com o método save() que retorna uma Promise
-  add(queue, job) {
+  add(queue, job) {  // OBS: O parâmetro passado para o método createJob é encapsulado dentrro de data: {}
     return this.queues[queue].bee.createJob(job).save()
   }
 
@@ -39,7 +39,7 @@ class Queue {
   }
 
   handleFailure(job, err) {
-    console.log(`Queue ${job.queue.name}: FAILED`, err)
+    console.log(`The queue ${job.queue.name} failed: `, err)
   }
 }
 

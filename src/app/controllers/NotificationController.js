@@ -25,7 +25,12 @@ class NotificationController {
   async update(req, res) {
 
     const { id: notification_id } = req.params
-    const notification = await Notification.findOneAndUpdate({ _id: notification_id }, { read: true }, { new: true })
+    const notification = await Notification.findOneAndUpdate(
+      { _id: notification_id },
+      { read: true }, // Novo valor para atualização do registro
+      { new: true }  // Para retornar a nova notificação atualizada
+    )
+
     res.json(notification)
   }
 

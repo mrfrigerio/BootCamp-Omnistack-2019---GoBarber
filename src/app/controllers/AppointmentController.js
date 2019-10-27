@@ -17,10 +17,10 @@ class AppointmentController {
         user_id: req.userId,
         canceled_at: null
       },
-      order: ['date'],
+      order: [['date', 'DESC']],
+      attributes: ['id', 'date', 'past', 'cancellable'],
       limit: 20,
       offset: (page - 1) * 20,
-      attributes: ['id', 'date'],
       include: [{
         model: User,
         as: 'provider',
@@ -49,7 +49,7 @@ class AppointmentController {
     const { provider_id, date } = req.body
 
     /**
-     * Check if the provider_id is a real provider
+     * Check if the provider_id is actually a real provider
      */
 
     const isProvider = await User.findOne({ where: { id: provider_id, provider: true } })
@@ -74,8 +74,8 @@ class AppointmentController {
     const checkAvailability = await Appointment.findOne({
       where: {
         provider_id,
-        canceled_at: null,
-        date: hourStart
+        date: hourStart,
+        canceled_at: null
       }
     })
 
@@ -86,7 +86,7 @@ class AppointmentController {
     const { name: user_name, id: user_id } = await User.findByPk(req.userId)
 
     /**
-     * Check is myself
+     * Check if is an appointment with myself
      */
 
     if (provider_id === user_id) {
@@ -143,6 +143,9 @@ class AppointmentController {
       return res.status(401).json({ error: "Sorry. We can't cancel an appointment closer than 2 hours from now" })
     }
 
+    /**
+     * Adiciona um email na fila de disparo de emails de cancelamento
+     */
     await Queue.add(CancellationMail.key, { appointment })
 
     const updatedAppointment = await appointment.update({ canceled_at: new Date() })

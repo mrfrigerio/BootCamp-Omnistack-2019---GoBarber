@@ -15,7 +15,8 @@ class CancellationMail {
       to: `${appointment.provider.name} <${appointment.provider.email}>`,
       subject: 'Agendamento cancelado',
       template: 'cancellation',
-      context: {
+      // text: '', // Texto bruto em caso de não utilizar um rich template
+      context: {  // Variáveis do template - Handlebars
         provider: appointment.provider.name,
         user: appointment.user.name,
         date: format(parseISO(appointment.date), " dd 'de' MMMM' de' yyyy' às 'HH:mm", { locale: pt_BR })
