@@ -4,13 +4,14 @@ import * as Yup from 'yup'
 import User from '../models/User'
 import authConfig from '../../config/auth'
 
-
 class SessionController {
   async store(req, res) {
     const { email, password } = req.body
 
-    const schema = Yup.object().schema({
-      email: Yup.string().email().required(),
+    const schema = Yup.object().shape({
+      email: Yup.string()
+        .email()
+        .required(),
       password: Yup.string().required()
     })
 
@@ -24,7 +25,7 @@ class SessionController {
     }
 
     if (!(await user.checkPassword(password))) {
-      return res.status(401).json({ error: 'Password doesn\'t match!' })
+      return res.status(401).json({ error: "Password doesn't match!" })
     }
 
     const { id, name } = user
@@ -42,6 +43,3 @@ class SessionController {
 }
 
 export default new SessionController()
-
-
-

@@ -1,16 +1,19 @@
-import User from '../models/User'
 import * as Yup from 'yup'
+import User from '../models/User'
 // index, show, store, update, delete
 
 class UserController {
-
   async store(req, res) {
     // const { name, email, password, provider } = req.body
 
     const schema = Yup.object().shape({
       name: Yup.string().required(),
-      email: Yup.string().email().required(),
-      password: Yup.string().required().min(6)
+      email: Yup.string()
+        .email()
+        .required(),
+      password: Yup.string()
+        .required()
+        .min(6)
     })
 
     if (!(await schema.isValid(req.body))) {
@@ -39,7 +42,9 @@ class UserController {
   async update(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
-      email: Yup.string().email().required(),
+      email: Yup.string()
+        .email()
+        .required(),
       oldPassword: Yup.string().min(6),
       password: Yup.string().when('oldPassword', (oldPassword, field) =>
         oldPassword ? field.required() : field
@@ -57,13 +62,15 @@ class UserController {
 
     const user = await User.findByPk(req.userId)
     if (email !== user.email) {
-      const userExists = await User.findOne({ where: { email: req.body.email } })
+      const userExists = await User.findOne({
+        where: { email: req.body.email }
+      })
       if (userExists) {
         return res.status(400).json({ error: 'User already exists!' })
       }
     }
 
-    if (oldPassword && (!(await user.checkPassword(oldPassword)))) {
+    if (oldPassword && !(await user.checkPassword(oldPassword))) {
       return res.status(401).json({ error: 'Password does not match!' })
     }
 

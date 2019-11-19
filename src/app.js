@@ -3,11 +3,10 @@ import express from 'express'
 import { resolve } from 'path'
 import Youch from 'youch'
 import * as Sentry from '@sentry/node'
-import 'express-async-errors'  // Tem que vir antes da importação das rotas
+import 'express-async-errors' // Tem que vir antes da importação das rotas
 import routes from './routes'
 import sentryConfig from './config/sentry'
 import './database'
-
 
 class App {
   constructor() {
@@ -19,14 +18,17 @@ class App {
   }
 
   middlewares() {
-    this.server.use(Sentry.Handlers.requestHandler());
+    this.server.use(Sentry.Handlers.requestHandler())
     this.server.use(express.json())
-    this.server.use('/files', express.static(resolve(__dirname, '..', 'tmp', 'uploads')))
+    this.server.use(
+      '/files',
+      express.static(resolve(__dirname, '..', 'tmp', 'uploads'))
+    )
   }
 
   routes() {
     this.server.use(routes)
-    this.server.use(Sentry.Handlers.errorHandler());
+    this.server.use(Sentry.Handlers.errorHandler())
   }
 
   /**
@@ -37,7 +39,7 @@ class App {
   exceptionHandler() {
     this.server.use(async (err, req, res, nex) => {
       if (process.env.NODE_ENV === 'development') {
-        const errors = await new Youch(err, req).toJSON()  //Ele tem um .HTML() tb
+        const errors = await new Youch(err, req).toJSON() // Ele tem um .HTML() tb
         return res.status(500).json(errors)
       }
       return res.status(500).json({ error: 'Internal server error' })

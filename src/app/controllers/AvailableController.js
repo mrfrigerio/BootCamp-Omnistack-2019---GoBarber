@@ -1,4 +1,12 @@
-import { startOfDay, endOfDay, setHours, setMinutes, setSeconds, format, isAfter } from 'date-fns'
+import {
+  startOfDay,
+  endOfDay,
+  setHours,
+  setMinutes,
+  setSeconds,
+  format,
+  isAfter
+} from 'date-fns'
 import { Op } from 'sequelize'
 
 import User from '../models/User'
@@ -13,7 +21,7 @@ class AvailableController {
       return res.json({ error: 'Invalid informed date [query param]' })
     }
 
-    const searchDate = parseInt(date)
+    const searchDate = parseInt(date, 10)
 
     /**
      * Check if is a provider
@@ -27,7 +35,9 @@ class AvailableController {
     })
 
     if (!provider) {
-      return res.json({ error: `There is no provider with id [${providerId}].` })
+      return res.json({
+        error: `There is no provider with id [${providerId}].`
+      })
     }
 
     const appointments = await Appointment.findAll({
@@ -38,9 +48,7 @@ class AvailableController {
           [Op.between]: [startOfDay(searchDate), endOfDay(searchDate)]
         }
       },
-      order: [
-        ['date', 'ASC']
-      ]
+      order: [['date', 'ASC']]
     })
 
     const schedule = [
@@ -55,23 +63,27 @@ class AvailableController {
       '16:00',
       '17:00',
       '18:00',
-      '19:00',
+      '19:00'
     ]
 
     const available = schedule.map(time => {
       const [hour, minute] = time.split(':')
-      const value = setSeconds(setMinutes(setHours(searchDate, hour), minute), 0)
+      const value = setSeconds(
+        setMinutes(setHours(searchDate, hour), minute),
+        0
+      )
 
       return {
         time,
         value: format(value, "yyyy-MM-dd'T'HH:mm:ssxxx"),
-        available: isAfter(value, new Date()) && !appointments.find(a => format(a.date, 'HH:mm') === time)
+        available:
+          isAfter(value, new Date()) &&
+          !appointments.find(a => format(a.date, 'HH:mm') === time)
       }
     })
 
     return res.json(available)
   }
-
 }
 
 export default new AvailableController()

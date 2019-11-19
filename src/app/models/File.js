@@ -5,19 +5,23 @@ import 'dotenv/config'
 
 class File extends Model {
   static init(sequelize) {
-    super.init({
-      name: Sequelize.STRING,
-      path: Sequelize.STRING,
-      url: {
-        type: Sequelize.VIRTUAL,  // Will not be persisted in the database
-        get() { return `${process.env.APP_URL}/files/${this.path}` }
-      }
-    },
+    super.init(
+      {
+        name: Sequelize.STRING,
+        path: Sequelize.STRING,
+        url: {
+          type: Sequelize.VIRTUAL, // Will not be persisted in the database
+          get() {
+            return `${process.env.APP_URL}/files/${this.path}`
+          }
+        }
+      },
       {
         sequelize
-      })
+      }
+    )
 
-    return this //optional
+    return this // optional
   }
 }
 export default File

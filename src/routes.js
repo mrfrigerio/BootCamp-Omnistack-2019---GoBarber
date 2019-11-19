@@ -19,9 +19,8 @@ const upload = multer(multerConfig)
 
 // ROUTES
 
-//Sessions
+// Sessions
 routes.post('/sessions', SessionController.store)
-
 
 // Users
 routes.post('/users', UserController.store)

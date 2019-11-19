@@ -19,7 +19,7 @@ module.exports = {
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        onDelete: 'SET NULL'
       },
       provider_id: {
         type: Sequelize.INTEGER,
@@ -29,7 +29,7 @@ module.exports = {
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        onDelete: 'SET NULL'
       },
       canceled_at: {
         type: Sequelize.DATE
@@ -45,7 +45,7 @@ module.exports = {
     })
   },
 
-  down: (queryInterface) => {
+  down: queryInterface => {
     return queryInterface.dropTable('appointments')
   }
 }

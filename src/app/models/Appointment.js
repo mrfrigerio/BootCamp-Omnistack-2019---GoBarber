@@ -6,27 +6,29 @@ import { isBefore, differenceInHours } from 'date-fns'
 
 class Appointment extends Model {
   static init(sequelize) {
-    super.init({
-      date: Sequelize.DATE,
-      canceled_at: Sequelize.DATE,
-      past: {
-        type: Sequelize.VIRTUAL,
-        get() {
-          return isBefore(this.date, new Date())
+    super.init(
+      {
+        date: Sequelize.DATE,
+        canceled_at: Sequelize.DATE,
+        past: {
+          type: Sequelize.VIRTUAL,
+          get() {
+            return isBefore(this.date, new Date())
+          }
+        },
+        cancellable: {
+          type: Sequelize.VIRTUAL,
+          get() {
+            return differenceInHours(this.date, new Date()) > 2
+          }
         }
       },
-      cancellable: {
-        type: Sequelize.VIRTUAL,
-        get() {
-          return differenceInHours(this.date, new Date()) > 2
-        }
-      }
-    },
       {
         sequelize
-      })
+      }
+    )
 
-    return this //optional
+    return this // optional
   }
 
   static associate(models) {

@@ -1,5 +1,11 @@
 import * as Yup from 'yup'
-import { startOfHour, isBefore, parseISO, differenceInHours, format } from 'date-fns'
+import {
+  startOfHour,
+  isBefore,
+  parseISO,
+  differenceInHours,
+  format
+} from 'date-fns'
 import pt_BR from 'date-fns/locale/pt-BR'
 import Appointment from '../models/Appointment'
 import User from '../models/User'
@@ -9,7 +15,6 @@ import Queue from '../../lib/Queue'
 import CancellationMail from '../jobs/CancellationMail'
 
 class AppointmentController {
-
   async index(req, res) {
     const { page = 1 } = req.query
     const appointments = await Appointment.findAll({
@@ -21,16 +26,18 @@ class AppointmentController {
       attributes: ['id', 'date', 'past', 'cancellable'],
       limit: 20,
       offset: (page - 1) * 20,
-      include: [{
-        model: User,
-        as: 'provider',
-        attibutes: ['id', 'name'],
-        include: {
-          model: File,
-          as: 'avatar',
-          attributes: ['name', 'path', 'url']
+      include: [
+        {
+          model: User,
+          as: 'provider',
+          attibutes: ['id', 'name'],
+          include: {
+            model: File,
+            as: 'avatar',
+            attributes: ['name', 'path', 'url']
+          }
         }
-      }]
+      ]
     })
 
     res.json(appointments)
@@ -52,10 +59,14 @@ class AppointmentController {
      * Check if the provider_id is actually a real provider
      */
 
-    const isProvider = await User.findOne({ where: { id: provider_id, provider: true } })
+    const isProvider = await User.findOne({
+      where: { id: provider_id, provider: true }
+    })
 
     if (!isProvider) {
-      return res.status(401).json({ error: 'You can only create appointments with providers!' })
+      return res
+        .status(401)
+        .json({ error: 'You can only create appointments with providers!' })
     }
 
     /**
@@ -90,7 +101,9 @@ class AppointmentController {
      */
 
     if (provider_id === user_id) {
-      return res.status(400).json('You can not scheldule an appointment with yourself.')
+      return res
+        .status(400)
+        .json('You can not scheldule an appointment with yourself.')
     }
 
     const appointment = await Appointment.create({
@@ -103,18 +116,20 @@ class AppointmentController {
      * Notify provider
      */
 
-    const formattedDate = format(hourStart, "'o dia' dd 'de' MMMM' de' yyyy 'às' HH:mm", { locale: pt_BR })
+    const formattedDate = format(
+      hourStart,
+      "'o dia' dd 'de' MMMM' de' yyyy 'às' HH:mm",
+      { locale: pt_BR }
+    )
     Notification.create({
       content: `Novo agendamento de ${user_name} para ${formattedDate}`,
       user: provider_id
     })
 
     return res.json({ appointment })
-
   }
 
   async delete(req, res) {
-
     /**
      *  Somente é possível cancelar agendamentos do próprio usuário logado e com mais de 2h de antecedência
      */
@@ -136,11 +151,16 @@ class AppointmentController {
     const { user_id, date } = appointment
 
     if (user_id !== req.userId) {
-      return res.status(401).json({ error: "You don't have permission to cancel this appointment." })
+      return res.status(401).json({
+        error: "You don't have permission to cancel this appointment."
+      })
     }
 
     if (differenceInHours(date, new Date()) < 2) {
-      return res.status(401).json({ error: "Sorry. We can't cancel an appointment closer than 2 hours from now" })
+      return res.status(401).json({
+        error:
+          "Sorry. We can't cancel an appointment closer than 2 hours from now"
+      })
     }
 
     /**
@@ -148,12 +168,11 @@ class AppointmentController {
      */
     await Queue.add(CancellationMail.key, { appointment })
 
-    const updatedAppointment = await appointment.update({ canceled_at: new Date() })
+    const updatedAppointment = await appointment.update({
+      canceled_at: new Date()
+    })
     return res.json(updatedAppointment)
-
   }
-
-
 }
 
 export default new AppointmentController()
