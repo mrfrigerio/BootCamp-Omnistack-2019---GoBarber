@@ -4,6 +4,7 @@ import { resolve } from 'path'
 import Youch from 'youch'
 import * as Sentry from '@sentry/node'
 import 'express-async-errors' // Tem que vir antes da importação das rotas
+import cors from 'cors'
 import routes from './routes'
 import sentryConfig from './config/sentry'
 import './database'
@@ -19,6 +20,7 @@ class App {
 
   middlewares() {
     this.server.use(Sentry.Handlers.requestHandler())
+    this.server.use(cors({ origin: '*' }))
     this.server.use(express.json())
     this.server.use(
       '/files',
