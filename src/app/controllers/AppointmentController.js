@@ -30,7 +30,7 @@ class AppointmentController {
         {
           model: User,
           as: 'provider',
-          attibutes: ['id', 'name'],
+          attributes: ['id', 'name'],
           include: {
             model: File,
             as: 'avatar',
@@ -166,11 +166,13 @@ class AppointmentController {
     /**
      * Adiciona um email na fila de disparo de emails de cancelamento
      */
+
     await Queue.add(CancellationMail.key, { appointment })
 
     const updatedAppointment = await appointment.update({
       canceled_at: new Date()
     })
+
     return res.json(updatedAppointment)
   }
 }

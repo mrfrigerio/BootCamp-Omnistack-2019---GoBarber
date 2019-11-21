@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import { promisify } from 'util'
+import { promisify } from 'util' // Transforma uma função de callback para uma função Promise async/await
 import authConfig from '../../config/auth'
 
 export default async function(req, res, next) {

@@ -10,7 +10,7 @@ class Queue {
     this.init()
   }
 
-  // Cria as filas dos jobs contidos no Array 'jobs'
+  // Popula queues: Cria uma fila para cada job contido no Array 'jobs'
 
   init() {
     jobs.forEach(({ key, handle }) => {
@@ -21,9 +21,12 @@ class Queue {
     })
   }
 
-  // Adiciona jobs às filas com os dados 'data' e salva no Redis com o método save() que retorna uma Promise
+  // Adiciona jobs às filas e salva no Redis com o método save() que retorna uma Promise
   add(queue, job) {
-    // OBS: O parâmetro passado para o método createJob é encapsulado dentrro de data: {}
+    /**
+     * OBS: O parâmetro passado para o método createJob é encapsulado dentro de { data: { job } }
+     * e eviado ao método handle do job
+     */
     return this.queues[queue].bee.createJob(job).save()
   }
 
@@ -36,7 +39,7 @@ class Queue {
   }
 
   handleFailure(job, err) {
-    // console.log(`The queue ${job.queue.name} failed: `, err)
+    console.log(`The queue ${job.queue.name} failed: `, err)
   }
 }
 

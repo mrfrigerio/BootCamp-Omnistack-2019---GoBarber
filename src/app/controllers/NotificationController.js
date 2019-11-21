@@ -11,8 +11,8 @@ class NotificationController {
     })
 
     if (!checkIsProvider) {
-      return res.jscon({
-        error: 'Only providers can query their notifications.'
+      return res.status(401).json({
+        error: 'Only providers can query notifications.'
       })
     }
 
